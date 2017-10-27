@@ -22,3 +22,19 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+svg {
+  margin: 10px;
+}
+
+svg path {
+  fill: none;
+  stroke: #3A5894;
+  stroke-width: 0.3;
+  stroke-linecap: square;
+}
+
+svg path.skeleton {
+  stroke: #EEE;
+  stroke-width: 0.1;
+}

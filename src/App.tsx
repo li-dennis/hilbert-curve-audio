@@ -1,22 +1,40 @@
-import * as React from 'react';
-import './App.css';
+import * as d3 from 'd3'
+import * as React from 'react'
+import * as HilbertUtils from './HilbertUtils'
 
-const logo = require('./logo.svg');
+import './App.css'
 
 class App extends React.Component {
-  render() {
+
+  private svg: SVGSVGElement
+
+  public drawHilbert = () => {
+    const svg = d3.select(this.svg)
+    const canvasWidth = Math.min(window.innerWidth, window.innerHeight - 100)
+    const order = 10000
+
+    HilbertUtils.init(svg, canvasWidth, order)
+  }
+
+  public componentDidMount() {
+    this.drawHilbert()
+  }
+
+  public componentDidUpdate() {
+    this.drawHilbert()
+  }
+
+  public componentWillUpdate() {
+    return false
+  }
+
+  public render() {
     return (
       <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
+        <svg id="hilbert-chart" ref={(svg) => this.svg = svg as SVGSVGElement} />
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App
