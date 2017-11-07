@@ -7,7 +7,7 @@ import './App.css'
 class App extends React.Component {
 
   private svg: SVGSVGElement
-  private hilbert: HilbertUtils.HilbertGraph
+  private hilbertGraph: HilbertUtils.HilbertGraph
   private audioContext: AudioContext
   private analyser: AnalyserNode
   private source: MediaStreamAudioSourceNode
@@ -44,24 +44,24 @@ class App extends React.Component {
     this.source = this.audioContext.createMediaStreamSource(await this.getStream())
     this.source.connect(this.analyser)
 
-    // this.analyser.fftSize = 32768
+    this.analyser.fftSize = 32768
     setInterval(() => {
       const buffer = new Float32Array(this.analyser.frequencyBinCount)
       this.analyser.getFloatFrequencyData(buffer)
-      this.visualize(buffer)
+      // this.visualize(buffer)
     }, 100)
   }
 
-  private visualize(buffer: Float32Array) {
-    return this.hilbert.updateData(buffer)
-  }
+  // private visualize(buffer: Float32Array) {
+  //   return this.hilbert.updateData(buffer)
+  // }
 
   private drawHilbert = () => {
     const svg = d3.select(this.svg)
-    const canvasWidth = Math.min(window.innerWidth, window.innerHeight - 100)
-    const length = 2048
+    const canvasWidth = Math.min(window.innerWidth, window.innerHeight - 200)
+    const order = 12
 
-    this.hilbert = new HilbertUtils.HilbertGraph(svg, canvasWidth, length)
+    this.hilbertGraph = new HilbertUtils.HilbertGraph(svg, canvasWidth, order)
   }
 
 }
