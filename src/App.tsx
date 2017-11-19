@@ -1,4 +1,3 @@
-import * as d3 from 'd3'
 import * as React from 'react'
 import * as HilbertUtils from './HilbertUtils'
 
@@ -6,7 +5,7 @@ import './App.css'
 
 class App extends React.Component {
 
-  private svg: SVGSVGElement
+  private canvas: HTMLCanvasElement
   private hilbertGraph: HilbertUtils.HilbertGraph
   private audioContext: AudioContext
   private analyser: AnalyserNode
@@ -30,7 +29,7 @@ class App extends React.Component {
   public render() {
     return (
       <div className="App">
-        <svg id="hilbert-chart" ref={(svg) => this.svg = svg as SVGSVGElement} />
+        <canvas id="hilbert-chart" ref={(canvas) => this.canvas = canvas as HTMLCanvasElement}/>
         <div id="val-tooltip" />
       </div>
     )
@@ -48,20 +47,20 @@ class App extends React.Component {
     setInterval(() => {
       const buffer = new Float32Array(this.analyser.frequencyBinCount)
       this.analyser.getFloatFrequencyData(buffer)
-      // this.visualize(buffer)
     }, 100)
   }
 
-  // private visualize(buffer: Float32Array) {
-  //   return this.hilbert.updateData(buffer)
-  // }
-
   private drawHilbert = () => {
-    const svg = d3.select(this.svg)
-    const canvasWidth = Math.min(window.innerWidth, window.innerHeight - 200)
     const order = 12
+    const canvasWidth = Math.min(window.innerWidth, window.innerHeight)
+    this.canvas.width = canvasWidth
+    this.canvas.height = canvasWidth
 
-    this.hilbertGraph = new HilbertUtils.HilbertGraph(svg, canvasWidth, order)
+    this.hilbertGraph = new HilbertUtils.HilbertGraph(
+      this.canvas.getContext('2d') as CanvasRenderingContext2D,
+      canvasWidth,
+      order,
+    )
   }
 
 }
