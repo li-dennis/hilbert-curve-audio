@@ -1,30 +1,41 @@
 import * as d3 from 'd3'
-import * as Hilbert from './Hilbert'
+import { getHilbertPath } from './Hilbert'
+
+const margin = { top: 5, right: 5, bottom: 5, left: 5 }
 
 export class HilbertGraph {
   constructor(
-    context: CanvasRenderingContext2D,
+    svg: SVGSVGElement,
     canvasWidth: number,
     order: number,
   ) {
     const length = 1 << order
     const size = 1 << (order / 2)
-    const data = Hilbert.getHilbertPath(0, length, size)
+    const data = getHilbertPath(0, length, size)
+
+    const svgSelection = d3.select(svg)
+      .attr('width', canvasWidth + margin.left + margin.right)
+      .attr('height', canvasWidth + margin.top + margin.bottom)
+      .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`)
 
     const scale = d3.scaleLinear()
       .domain([ 0, size ])
       .range([ 0, canvasWidth ])
 
-    const line = d3.line<Hilbert.Point>()
-      .x((d) => scale(d.x))
-      .y((d) => scale(d.y))
-      .context(context)
+    // const circleGroup = svgSelection.append('g')
 
-    context.beginPath()
-    line(data)
-    context.lineWidth = 1.5
-    context.strokeStyle = 'steelblue'
-    context.stroke()
+    // const line = d3.line<Point>()
+    //   .x((d) => scale(d.x))
+    //   .y((d) => scale(d.y))
+
+    svgSelection.selectAll('circle')
+      .data(data)
+      .enter().append('circle')
+        .attr('cx', (d) => scale(d.x))
+        .attr('cy', (d) => scale(d.y))
+        .attr('r', 1)
+
   }
 
 }

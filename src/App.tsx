@@ -5,7 +5,7 @@ import './App.css'
 
 class App extends React.Component {
 
-  private canvas: HTMLCanvasElement
+  private svg: SVGSVGElement
   private hilbertGraph: HilbertUtils.HilbertGraph
   private audioContext: AudioContext
   private analyser: AnalyserNode
@@ -29,7 +29,7 @@ class App extends React.Component {
   public render() {
     return (
       <div className="App">
-        <canvas id="hilbert-chart" ref={(canvas) => this.canvas = canvas as HTMLCanvasElement}/>
+        <svg id="hilbert-chart" ref={(svg) => this.svg = svg as SVGSVGElement} />
         <div id="val-tooltip" />
       </div>
     )
@@ -52,12 +52,10 @@ class App extends React.Component {
 
   private drawHilbert = () => {
     const order = 12
-    const canvasWidth = Math.min(window.innerWidth, window.innerHeight)
-    this.canvas.width = canvasWidth
-    this.canvas.height = canvasWidth
+    const canvasWidth = Math.min(window.innerWidth, window.innerHeight) - 100
 
     this.hilbertGraph = new HilbertUtils.HilbertGraph(
-      this.canvas.getContext('2d') as CanvasRenderingContext2D,
+      this.svg,
       canvasWidth,
       order,
     )
