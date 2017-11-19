@@ -23,6 +23,11 @@ export class HilbertGraph {
       .domain([ 0, size ])
       .range([ 0, canvasWidth ])
 
+    const colorScale = d3.scaleLinear<d3.RGBColor>()
+      .domain([ 0, length ])
+      .interpolate(d3.interpolateHcl)
+      .range([ d3.rgb('#007AFF'), d3.rgb('#FFF500') ])
+
     // const circleGroup = svgSelection.append('g')
 
     // const line = d3.line<Point>()
@@ -34,7 +39,8 @@ export class HilbertGraph {
       .enter().append('circle')
         .attr('cx', (d) => scale(d.x))
         .attr('cy', (d) => scale(d.y))
-        .attr('r', 1)
+        .attr('r', 2)
+        .attr('fill', (d, i) => colorScale(i))
 
   }
 
