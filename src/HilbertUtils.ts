@@ -6,20 +6,20 @@ export function getOrder(length: number) {
 }
 
 export function getHilbertPath(vertices: string[]) {
-  let path = 'M0 0L0 0'
+  let path = 'M0 0 L0 0'
   vertices.forEach((vert) => {
     switch (vert) {
       case 'U':
-        path += 'v-1'
+        path += ' v-1'
         break
       case 'D':
-        path += 'v1'
+        path += ' v1'
         break
       case 'L':
-        path += 'h-1'
+        path += ' h-1'
         break
       case 'R':
-        path += 'h1'
+        path += ' h1'
         break
     }
   })

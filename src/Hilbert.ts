@@ -1,13 +1,13 @@
 import * as _ from 'lodash'
 
-export enum XDirections {
-  Left = 0,
-  Right = 1,
+export enum X_SIDES {
+  LEFT = 0,
+  RIGHT = 1,
 }
 
-export enum YDirections {
-  Up = 0,
-  Down = 1,
+export enum Y_SIDES {
+  UP = 0,
+  BOTTOM = 1,
 }
 
 export type Point = {
@@ -16,79 +16,79 @@ export type Point = {
 }
 
 export function rotate(
-  coords: { x: number; y: number },
+  point: Point,
   regionSize: number,
-  xDirection: XDirections,
-  yDirection: YDirections,
-) {
-  if (yDirection === YDirections.Down) {
-    return coords
+  xSide: X_SIDES,
+  ySide: Y_SIDES,
+): Point {
+  if (ySide === Y_SIDES.BOTTOM) {
+    return point
   }
 
   // rotate top right qudrant CW 90 deg
-  if (xDirection === XDirections.Right) {
+  if (xSide === X_SIDES.RIGHT) {
     return {
-      x: regionSize - 1 - coords.y,
-      y: regionSize - 1 - coords.x,
+      x: regionSize - 1 - point.y,
+      y: regionSize - 1 - point.x,
     }
     // rotate top left quadrant CCW 90deg
   } else {
     return {
-      x: coords.y,
-      y: coords.x,
+      x: point.y,
+      y: point.x,
     }
   }
 }
 
 // Note: this function will start breaking down for n > 2^26 (MAX_SAFE_INTEGER = 2^53)
-export function pointToDistance(point: Point, sideSize: number): number {
-  const bitLength = Math.floor(Math.log2(sideSize))
+export function pointToDistance(point: Point, maxSize: number): number {
+  const bitLength = Math.floor(Math.log2(maxSize))
 
   return _.range(1, bitLength + 1)
-    .reduce(({ distance, rotatedPoint }, shiftCount) => {
-      const quadrantBoundaryCoord = sideSize >> shiftCount
+    .reduce(({ currDistance, currPoint }, shiftCount) => {
+      const boundaryLine = maxSize >> shiftCount
 
-      const xDirection = (rotatedPoint.y & quadrantBoundaryCoord) > 0 ? XDirections.Right : XDirections.Left
-      const yDirection = (rotatedPoint.x & quadrantBoundaryCoord) > 0 ? YDirections.Down : YDirections.Up
+      const xSide = (currPoint.y & boundaryLine) > 0 ? X_SIDES.RIGHT : X_SIDES.LEFT
+      const ySide = (currPoint.x & boundaryLine) > 0 ? Y_SIDES.BOTTOM : Y_SIDES.UP
 
-      const newDistance = distance + ((quadrantBoundaryCoord * quadrantBoundaryCoord * (3 * xDirection)) ^ yDirection)
-      const newPoint = rotate(rotatedPoint, quadrantBoundaryCoord, xDirection, yDirection)
+      const dx = (boundaryLine * boundaryLine * (3 * xSide)) ^ ySide
+      const nextPoint = rotate(currPoint, boundaryLine, xSide, ySide)
 
       return {
-        distance: newDistance,
-        rotatedPoint: newPoint,
+        currDistance: currDistance + dx,
+        currPoint: nextPoint,
       }
     }, {
-      distance: 0,
-      rotatedPoint: point,
-    }).distance
+      currDistance: 0,
+      currPoint: point,
+    }).currDistance
 }
 
 // Every 4 bits can be rotated and decoded into a U shape. 00->01 = down, 01->10 = right, 10 -> 11 = up
-export function distanceToPoint(distance: number, regionSize: number): Point {
-  const bitLength = Math.floor(Math.log2(regionSize))
+export function distanceToPoint(distance: number, maxSize: number): Point {
+  const bitLength = Math.floor(Math.log2(maxSize))
 
   return  _.range(0, bitLength)
-    .reduce(({ subDistance, point }, shiftCount) => {
+    .reduce(({ currDistance, currPoint }, shiftCount) => {
       const regionSize = 1 << shiftCount
 
-      const xDirection = 1 & (subDistance >> 1) ? XDirections.Right : XDirections.Left
-      const yDirection = 1 & (subDistance ^ xDirection) ? YDirections.Down : YDirections.Up
+      const xSide = 1 & (currDistance >> 1) ? X_SIDES.RIGHT : X_SIDES.LEFT
+      const ySide = 1 & (currDistance ^ xSide) ? Y_SIDES.BOTTOM : Y_SIDES.UP
 
-      const { x, y } = rotate(point, regionSize, xDirection, yDirection)
+      const { x, y } = rotate(currPoint, regionSize, xSide, ySide)
 
       return {
-        subDistance: subDistance >> 2,
-        point: {
-          x: x + regionSize * xDirection,
-          y: y + regionSize * yDirection,
+        currDistance: currDistance >> 2,
+        currPoint: {
+          x: x + regionSize * xSide,
+          y: y + regionSize * ySide,
         },
       }
     },
     {
-      subDistance: distance,
-      point: { x: 0, y: 0 },
-    }).point
+      currDistance: distance,
+      currPoint: { x: 0, y: 0 },
+    }).currPoint
 }
 
 export class HilbertCurve {
