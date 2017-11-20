@@ -64,7 +64,7 @@ class App extends React.Component {
     d3.timer(() => {
       this.analyser.getFloatFrequencyData(buffer)
       this.hilbertGraph.update(buffer)
-    }, 200)
+    }, 10)
   }
 
   private drawHilbert = () => {
