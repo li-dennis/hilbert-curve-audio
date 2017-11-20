@@ -53,7 +53,7 @@ class App extends React.Component {
     this.source.connect(this.analyser)
 
     // FFTSize is 2x because of nyquist cutoff
-    this.analyser.fftSize = 2 << ORDER
+    this.analyser.fftSize = 4 << ORDER
     this.analyser.smoothingTimeConstant = 0.5
 
     this.oscillator = this.audioContext.createOscillator()
@@ -64,7 +64,7 @@ class App extends React.Component {
     d3.timer(() => {
       this.analyser.getFloatFrequencyData(buffer)
       this.hilbertGraph.update(buffer)
-    }, 10)
+    }, 100)
   }
 
   private drawHilbert = () => {

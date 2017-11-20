@@ -66,8 +66,8 @@ export class HilbertGraph {
       .domain([ 0, this.size ])
       .range([ 0, this.canvasWidth ])
 
-    const dBScale = d3.scaleSequential(d3ScaleChromatic.interpolateRdYlGn)
-      .domain([ -100, -30 ])
+    const dBScale = d3.scaleSequential(d3ScaleChromatic.interpolateSpectral)
+      .domain([ -100, -50 ])
 
     const data = this.getData(fft)
 
@@ -88,14 +88,14 @@ export class HilbertGraph {
       .attr('width', pixelSize)
       .merge(graph)
         .attr('fill', (d) => dBScale(d.dB) )
-      // .on('mouseover', (d, i, nodes) => {
-      //   d3.select(nodes[i])
-      //     .attr('fill', () => 'black')
-      // })
-      // .on('mouseout', (d, i, nodes) => {
-      //   d3.select(nodes[i])
-      //     .attr('fill', () => dBScale(d.dB))
-      // })
+      .on('mouseover', (d, i, nodes) => {
+        d3.select(nodes[i])
+          .attr('fill', () => 'black')
+      })
+      .on('mouseout', (d, i, nodes) => {
+        d3.select(nodes[i])
+          .attr('fill', () => dBScale(d.dB))
+      })
 
     graph.exit().remove()
   }
