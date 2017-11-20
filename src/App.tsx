@@ -52,7 +52,7 @@ class App extends React.Component {
     this.source.connect(this.analyser)
 
     this.analyser.fftSize = 2 << ORDER
-    this.analyser.smoothingTimeConstant = 0.3
+    this.analyser.smoothingTimeConstant = 0.5
 
     this.oscillator = this.audioContext.createOscillator()
     this.oscillator.connect(this.audioContext.destination)
@@ -85,7 +85,7 @@ class App extends React.Component {
       },
     )
 
-    this.hilbertGraph.drawLine()
+    // this.hilbertGraph.drawLine()
   }
 
 }

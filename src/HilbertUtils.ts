@@ -64,8 +64,12 @@ export class HilbertGraph {
       .domain([ 0, this.size ])
       .range([ 0, this.canvasWidth ])
 
-    const dBScale = d3.scaleSequential(d3.interpolateRainbow)
-      .domain([ -90, -10 ])
+    const freqScale = d3.scaleSequential(d3.interpolateRainbow)
+      .domain([ 0, this.length ])
+
+    const dBScale = d3.scaleLinear()
+      .domain([ -90, -20 ])
+      .range([ 0.5, 1 ])
 
     const data = this.getData(fft)
 
@@ -80,15 +84,16 @@ export class HilbertGraph {
       .attr('transform', `translate(${ - pixelSize / 2}, ${ - pixelSize / 2})`)
       .attr('height', pixelSize)
       .attr('width', pixelSize)
-      .attr('fill', (d, i) => dBScale(d.dB))
-      .on('mouseover', (d, i, nodes) => {
-        d3.select(nodes[i])
-          .attr('fill', () => 'black')
-      })
-      .on('mouseout', (d, i, nodes) => {
-        d3.select(nodes[i])
-          .attr('fill', () => dBScale(d.dB))
-      })
+      .attr('fill', (d, i) => freqScale(i))
+      .attr('fill-opacity', (d) => dBScale(d.dB) )
+      // .on('mouseover', (d, i, nodes) => {
+      //   d3.select(nodes[i])
+      //     .attr('fill', () => 'black')
+      // })
+      // .on('mouseout', (d, i, nodes) => {
+      //   d3.select(nodes[i])
+      //     .attr('fill', () => dBScale(d.dB))
+      // })
 
     graph.exit().remove()
   }
