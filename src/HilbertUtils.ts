@@ -1,16 +1,16 @@
 import * as d3 from 'd3'
 import * as _ from 'lodash'
-import { getHilbertPath } from './Hilbert'
+import { getHilbertPath, Point } from './Hilbert'
 
-const margin = { top: 5, right: 5, bottom: 5, left: 5 }
-
-const MIN_COLOR = d3.rgb('white')
-const MAX_COLOR = d3.rgb('red')
+const margin = { top: 10, right: 10, bottom: 10, left: 10 }
 
 export class HilbertGraph {
   private svg: d3.Selection<Element | d3.EnterElement | Document | Window | null, {}, null, undefined>
   private length: number
   private size: number
+
+  private lineGroup: d3.Selection<Element | d3.EnterElement | Document | Window | null, {}, null, undefined>
+  private graphGroup: d3.Selection<Element | d3.EnterElement | Document | Window | null, {}, null, undefined>
 
   constructor(
     svg: SVGSVGElement,
@@ -20,19 +20,42 @@ export class HilbertGraph {
   ) {
     this.length = 1 << order
     this.size = 1 << (order / 2)
+
     this.svg = d3.select(svg)
       .attr('width', canvasWidth + margin.left + margin.right)
       .attr('height', canvasWidth + margin.top + margin.bottom)
       .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`)
+
+    this.graphGroup = this.svg.append('g')
+    this.lineGroup = this.svg.append('g')
   }
 
-  public getData(fft: Float32Array) {
+  public drawLine() {
+    const data = this.getData()
+
+    const scale = d3.scaleLinear()
+      .domain([ 0, this.size ])
+      .range([ 0, this.canvasWidth ])
+
+    const line = d3.line<Point>()
+      .x((d) => scale(d.x))
+      .y((d) => scale(d.y))
+
+    this.lineGroup.append('path')
+      .datum(data)
+      .attr('fill', 'none')
+      .attr('stroke', 'black')
+      .attr('stroke-width', '1.5')
+      .attr('d', line)
+  }
+
+  public getData(fft?: Float32Array) {
     const points = getHilbertPath(0, this.length, this.size)
 
     return _(points).map((point, i) => ({
       ...point,
-      dB: fft[i],
+      dB: fft ? fft[i] : -Infinity,
     })).value()
   }
 
@@ -41,41 +64,33 @@ export class HilbertGraph {
       .domain([ 0, this.size ])
       .range([ 0, this.canvasWidth ])
 
-    const dBScale = d3.scaleLinear<d3.RGBColor>()
+    const dBScale = d3.scaleSequential(d3.interpolateRainbow)
       .domain([ -90, -10 ])
-      .interpolate(d3.interpolateHcl)
-      .range([ MIN_COLOR, MAX_COLOR ])
 
     const data = this.getData(fft)
 
-    const graph = this.svg.selectAll('circle')
+    const graph = this.graphGroup.selectAll('rect')
       .data(data, (d, i, nodes) => d ? (d as any).dB : (nodes[i] as any).id)
 
-    const t = d3.transition().duration(5)
+    const pixelSize = this.canvasWidth / this.size
 
-    graph.enter().append('circle')
-      .attr('cx', (d) => scale(d.x))
-      .attr('cy', (d) => scale(d.y))
-      .attr('r', 3)
+    graph.enter().append('rect')
+      .attr('x', (d) => scale(d.x))
+      .attr('y', (d) => scale(d.y))
+      .attr('transform', `translate(${ - pixelSize / 2}, ${ - pixelSize / 2})`)
+      .attr('height', pixelSize)
+      .attr('width', pixelSize)
       .attr('fill', (d, i) => dBScale(d.dB))
-      .style('fill-opacity', 1e-6)
       .on('mouseover', (d, i, nodes) => {
         d3.select(nodes[i])
           .attr('fill', () => 'black')
-          .attr('r', 6)
       })
       .on('mouseout', (d, i, nodes) => {
         d3.select(nodes[i])
           .attr('fill', () => dBScale(d.dB))
-          .attr('r', 3)
       })
-      .transition(t)
-        .style('fill-opacity', 1)
 
-    graph.exit()
-      .transition(t)
-        .style('fill-opacity', 1e-6)
-        .remove()
+    graph.exit().remove()
   }
 
 }

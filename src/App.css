@@ -17,38 +17,3 @@
 .App-intro {
   font-size: large;
 }
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-svg {
-  margin: 10px;
-}
-
-svg path {
-  fill: none;
-  stroke: #3A5894;
-  stroke-width: 0.3;
-  stroke-linecap: square;
-}
-
-svg path.skeleton {
-  stroke: #EEE;
-  stroke-width: 0.1;
-}
-
-#val-tooltip {
-  display: none;
-  position: absolute;
-  margin-top: 22px;
-  margin-left: -1px;
-  padding: 5px;
-  border-radius: 3px;
-  font: 11px sans-serif;
-  color: #eee;
-  background: rgba(0,0,140,0.9);
-  text-align: center;
-  pointer-events: none;
-}

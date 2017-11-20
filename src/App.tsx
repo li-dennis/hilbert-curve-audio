@@ -3,6 +3,8 @@ import * as HilbertUtils from './HilbertUtils'
 
 import './App.css'
 
+const ORDER = 11
+
 class App extends React.Component {
 
   private svg: SVGSVGElement
@@ -49,7 +51,8 @@ class App extends React.Component {
     this.source = this.audioContext.createMediaStreamSource(await this.getStream())
     this.source.connect(this.analyser)
 
-    this.analyser.fftSize = 4096
+    this.analyser.fftSize = 2 << ORDER
+    this.analyser.smoothingTimeConstant = 0.3
 
     this.oscillator = this.audioContext.createOscillator()
     this.oscillator.connect(this.audioContext.destination)
@@ -58,17 +61,16 @@ class App extends React.Component {
       const buffer = new Float32Array(this.analyser.frequencyBinCount)
       this.analyser.getFloatFrequencyData(buffer)
       this.hilbertGraph.update(buffer)
-    }, 50)
+    }, 10)
   }
 
   private drawHilbert = () => {
-    const order = 11
     const canvasWidth = Math.min(window.innerWidth, window.innerHeight) - 20
 
     this.hilbertGraph = new HilbertUtils.HilbertGraph(
       this.svg,
       canvasWidth,
-      order,
+      ORDER,
       (frequency: number) => {
         this.oscillator.disconnect()
         this.oscillator = this.audioContext.createOscillator()
@@ -82,6 +84,8 @@ class App extends React.Component {
         this.oscillator.start()
       },
     )
+
+    this.hilbertGraph.drawLine()
   }
 
 }
