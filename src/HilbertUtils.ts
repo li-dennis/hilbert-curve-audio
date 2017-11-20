@@ -58,7 +58,7 @@ export class HilbertGraph {
       .range([ 0, this.canvasWidth ])
 
     const dBScale = d3.scaleSequential(d3ScaleChromatic.interpolateSpectral)
-      .domain([ -100, -50 ])
+      .domain([ -40, -100 ])
 
     const graph = this.graphGroup.selectAll('rect')
       .data(this.points)
