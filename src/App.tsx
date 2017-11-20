@@ -4,6 +4,10 @@ import * as HilbertUtils from './HilbertUtils'
 
 import './App.css'
 
+// TODO: Add color scale for dB.
+// TODO: Add interactive normal 1D spectrum
+// TODO: Add transitions to convert between 1D and 2D.
+
 const ORDER = 12
 
 class App extends React.Component {
@@ -53,8 +57,8 @@ class App extends React.Component {
     this.source.connect(this.analyser)
 
     // FFTSize is 2x because of nyquist cutoff. Furthermore, for most music, the
-    // top half of sampled frequencies is pretty boring. so double again!
-    this.analyser.fftSize = 1 << (ORDER + 2)
+    // top half of sampled frequencies is pretty boring. so double a few more times!
+    this.analyser.fftSize = 1 << (ORDER + 3)
     this.analyser.smoothingTimeConstant = 0.5
 
     this.oscillator = this.audioContext.createOscillator()
