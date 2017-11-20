@@ -11,6 +11,8 @@ class App extends React.Component {
   private analyser: AnalyserNode
   private source: MediaStreamAudioSourceNode
 
+  private oscillator: OscillatorNode
+
   constructor() {
     super()
     this.audioContext = new (window as any).AudioContext()
@@ -18,8 +20,7 @@ class App extends React.Component {
   }
 
   public componentDidMount() {
-    this.drawHilbert()
-    this.connectAnalyser()
+    this.setup()
   }
 
   public componentWillUpdate() {
@@ -39,25 +40,47 @@ class App extends React.Component {
     return await navigator.mediaDevices.getUserMedia({ audio: true })
   }
 
-  private async connectAnalyser() {
+  private async setup() {
+    await this.setupWebAudio()
+    this.drawHilbert()
+  }
+
+  private async setupWebAudio() {
     this.source = this.audioContext.createMediaStreamSource(await this.getStream())
     this.source.connect(this.analyser)
 
     this.analyser.fftSize = 32768
+
+    this.oscillator = this.audioContext.createOscillator()
+    this.oscillator.connect(this.audioContext.destination)
+
     setInterval(() => {
       const buffer = new Float32Array(this.analyser.frequencyBinCount)
       this.analyser.getFloatFrequencyData(buffer)
+      this.hilbertGraph.update(buffer)
     }, 100)
   }
 
   private drawHilbert = () => {
     const order = 12
-    const canvasWidth = Math.min(window.innerWidth, window.innerHeight) - 100
+    const canvasWidth = Math.min(window.innerWidth, window.innerHeight) - 20
 
     this.hilbertGraph = new HilbertUtils.HilbertGraph(
       this.svg,
       canvasWidth,
       order,
+      (frequency: number) => {
+        this.oscillator.disconnect()
+        this.oscillator = this.audioContext.createOscillator()
+
+        if (frequency === 0) {
+          return
+        }
+
+        this.oscillator.frequency.value = frequency
+        this.oscillator.connect(this.audioContext.destination)
+        this.oscillator.start()
+      },
     )
   }
 
