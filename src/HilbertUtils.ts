@@ -37,8 +37,6 @@ export class HilbertGraph {
   }
 
   public drawLine() {
-    const data = this.getData()
-
     const scale = d3.scaleLinear()
       .domain([ 0, this.size ])
       .range([ 0, this.canvasWidth ])
@@ -48,7 +46,7 @@ export class HilbertGraph {
       .y((d) => scale(d.y))
 
     this.lineGroup.append('path')
-      .datum(data)
+      .datum(this.points)
       .attr('fill', 'none')
       .attr('stroke', 'black')
       .attr('stroke-width', '1.5')
@@ -58,7 +56,7 @@ export class HilbertGraph {
   public getData(fft?: Float32Array) {
     return _(this.points).map((point, i) => ({
       ...point,
-      dB: fft ? fft[i] : -Infinity,
+      dB: fft ? fft[i] : -100,
     })).value()
   }
 
@@ -67,19 +65,19 @@ export class HilbertGraph {
       .domain([ 0, this.size ])
       .range([ 0, this.canvasWidth ])
 
-    const freqScale = d3.scaleSequential(d3ScaleChromatic.interpolateSpectral)
-      .domain([ 0, this.length ])
-
-    const dBScale = d3.scaleLog()
-      .domain([ -90, -50 ])
-      .range([ 0.1, 1 ])
+    const dBScale = d3.scaleSequential(d3ScaleChromatic.interpolateRdYlGn)
+      .domain([ -100, -30 ])
 
     const data = this.getData(fft)
 
     const graph = this.graphGroup.selectAll('rect')
-      .data(data, (d, i, nodes) => d ? (d as any).dB : (nodes[i] as any).id)
+      .data(data, (d, i, nodes) => d ? [(d as any).x, (d as any).y] : (nodes[i] as any).id)
 
     const pixelSize = this.canvasWidth / this.size
+
+    const t = d3.transition()
+      .duration(50)
+      .ease(d3.easeLinear)
 
     graph.enter().append('rect')
       .attr('x', (d) => scale(d.x))
@@ -87,8 +85,10 @@ export class HilbertGraph {
       .attr('transform', `translate(${ - pixelSize / 2}, ${ - pixelSize / 2})`)
       .attr('height', pixelSize)
       .attr('width', pixelSize)
-      .attr('fill', (d, i) => freqScale(i))
-      .attr('fill-opacity', (d) => dBScale(d.dB) )
+      .attr('fill', (d) => dBScale(d.dB) )
+      .style('fill-opacity', 1e-6)
+      .transition(t)
+        .style('fill-opacity', 1)
       // .on('mouseover', (d, i, nodes) => {
       //   d3.select(nodes[i])
       //     .attr('fill', () => 'black')
@@ -98,7 +98,10 @@ export class HilbertGraph {
       //     .attr('fill', () => dBScale(d.dB))
       // })
 
-    graph.exit().remove()
+    graph.exit()
+      .transition(t)
+        .style('fill-opacity', 1e-6)
+      .remove()
   }
 
 }

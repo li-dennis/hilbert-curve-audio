@@ -1,3 +1,4 @@
+import * as d3 from 'd3'
 import * as React from 'react'
 import * as HilbertUtils from './HilbertUtils'
 
@@ -51,19 +52,19 @@ class App extends React.Component {
     this.source = this.audioContext.createMediaStreamSource(await this.getStream())
     this.source.connect(this.analyser)
 
-    // FFTSize is 2x because of nyquist cutoff. We also choose to only look at
-    // the bottom half of that because the top half is pretty boring.
-    this.analyser.fftSize = 4 << ORDER
-    this.analyser.smoothingTimeConstant = 0.7
+    // FFTSize is 2x because of nyquist cutoff
+    this.analyser.fftSize = 2 << ORDER
+    this.analyser.smoothingTimeConstant = 0.5
 
     this.oscillator = this.audioContext.createOscillator()
     this.oscillator.connect(this.audioContext.destination)
 
-    setInterval(() => {
-      const buffer = new Float32Array(this.analyser.frequencyBinCount)
+    const buffer = new Float32Array(this.analyser.frequencyBinCount)
+
+    d3.timer(() => {
       this.analyser.getFloatFrequencyData(buffer)
       this.hilbertGraph.update(buffer)
-    }, 5)
+    }, 200)
   }
 
   private drawHilbert = () => {
@@ -87,7 +88,7 @@ class App extends React.Component {
       },
     )
 
-    // this.hilbertGraph.drawLine()
+    this.hilbertGraph.drawLine()
   }
 
 }
