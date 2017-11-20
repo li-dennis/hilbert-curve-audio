@@ -86,16 +86,16 @@ export class HilbertGraph {
       .attr('transform', `translate(${ - pixelSize / 2}, ${ - pixelSize / 2})`)
       .attr('height', pixelSize)
       .attr('width', pixelSize)
+      // .on('mouseover', (d, i, nodes) => {
+      //   d3.select(nodes[i])
+      //     .attr('fill', () => 'black')
+      // })
+      // .on('mouseout', (d, i, nodes) => {
+      //   d3.select(nodes[i])
+      //     .attr('fill', () => dBScale(d.dB))
+      // })
       .merge(graph)
         .attr('fill', (d) => dBScale(d.dB) )
-      .on('mouseover', (d, i, nodes) => {
-        d3.select(nodes[i])
-          .attr('fill', () => 'black')
-      })
-      .on('mouseout', (d, i, nodes) => {
-        d3.select(nodes[i])
-          .attr('fill', () => dBScale(d.dB))
-      })
 
     graph.exit().remove()
   }
