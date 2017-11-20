@@ -13,6 +13,7 @@ export enum Y_SIDES {
 export type Point = {
   x: number,
   y: number,
+  id: number,
 }
 
 export function rotate(
@@ -30,12 +31,14 @@ export function rotate(
     return {
       x: regionSize - 1 - point.y,
       y: regionSize - 1 - point.x,
+      id: point.id,
     }
     // rotate top left quadrant CCW 90deg
   } else {
     return {
       x: point.y,
       y: point.x,
+      id: point.id,
     }
   }
 }
@@ -58,12 +61,17 @@ export function lengthToPoint(length: number, squareSize: number): Point {
         currPoint: {
           x: x + regionSize * isRight,
           y: y + regionSize * isBottom,
+          id: length,
         },
       }
     },
     {
       remainingLength: length,
-      currPoint: { x: 0, y: 0 },
+      currPoint: {
+        x: 0,
+        y: 0,
+        id: length,
+      },
     }).currPoint
 }
 

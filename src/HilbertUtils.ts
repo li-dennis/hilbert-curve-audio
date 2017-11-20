@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import * as d3ScaleChromatic from 'd3-scale-chromatic'
-import * as _ from 'lodash'
 import { getHilbertPath, Point } from './Hilbert'
 
 const margin = { top: 10, right: 10, bottom: 10, left: 10 }
@@ -53,14 +52,6 @@ export class HilbertGraph {
       .attr('d', line)
   }
 
-  public getData(fft?: Float32Array) {
-    return _(this.points).map((point, i) => ({
-      ...point,
-      dB: fft ? fft[i] : -100,
-      id: i,
-    })).value()
-  }
-
   public update(fft: Float32Array) {
     const scale = d3.scaleLinear()
       .domain([ 0, this.size ])
@@ -69,16 +60,10 @@ export class HilbertGraph {
     const dBScale = d3.scaleSequential(d3ScaleChromatic.interpolateSpectral)
       .domain([ -100, -50 ])
 
-    const data = this.getData(fft)
-
     const graph = this.graphGroup.selectAll('rect')
-      .data(data, (d, i, nodes) => d ? (d as any).id : (nodes[i] as any).id)
+      .data(this.points)
 
     const pixelSize = this.canvasWidth / this.size
-
-    // const t = d3.transition()
-    //   .duration(50)
-    //   .ease(d3.easeLinear)
 
     graph.enter().append('rect')
       .attr('x', (d) => scale(d.x))
@@ -95,7 +80,7 @@ export class HilbertGraph {
       //     .attr('fill', () => dBScale(d.dB))
       // })
       .merge(graph)
-        .attr('fill', (d) => dBScale(d.dB) )
+        .attr('fill', (d, i) => dBScale(fft[i]) )
 
     graph.exit().remove()
   }

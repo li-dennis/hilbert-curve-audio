@@ -4,7 +4,7 @@ import * as HilbertUtils from './HilbertUtils'
 
 import './App.css'
 
-const ORDER = 12
+const ORDER = 10
 
 class App extends React.Component {
 
@@ -55,7 +55,7 @@ class App extends React.Component {
     // FFTSize is 2x because of nyquist cutoff. Furthermore, for most music, the
     // top half of sampled frequencies is pretty boring. so double again!
     this.analyser.fftSize = 1 << (ORDER + 2)
-    this.analyser.smoothingTimeConstant = 0.5
+    this.analyser.smoothingTimeConstant = 0.4
 
     this.oscillator = this.audioContext.createOscillator()
     this.oscillator.connect(this.audioContext.destination)
@@ -65,7 +65,7 @@ class App extends React.Component {
     d3.timer(() => {
       this.analyser.getFloatFrequencyData(buffer)
       this.hilbertGraph.update(buffer)
-    }, 25)
+    }, 10)
   }
 
   private drawHilbert = () => {
