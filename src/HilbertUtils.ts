@@ -1,4 +1,5 @@
 import * as d3 from 'd3'
+import * as d3ScaleChromatic from 'd3-scale-chromatic'
 import * as _ from 'lodash'
 import { getHilbertPath, Point } from './Hilbert'
 
@@ -11,6 +12,8 @@ export class HilbertGraph {
 
   private lineGroup: d3.Selection<Element | d3.EnterElement | Document | Window | null, {}, null, undefined>
   private graphGroup: d3.Selection<Element | d3.EnterElement | Document | Window | null, {}, null, undefined>
+
+  private points: Point[]
 
   constructor(
     svg: SVGSVGElement,
@@ -29,6 +32,8 @@ export class HilbertGraph {
 
     this.graphGroup = this.svg.append('g')
     this.lineGroup = this.svg.append('g')
+
+    this.points = getHilbertPath(0, this.length, this.size)
   }
 
   public drawLine() {
@@ -51,9 +56,7 @@ export class HilbertGraph {
   }
 
   public getData(fft?: Float32Array) {
-    const points = getHilbertPath(0, this.length, this.size)
-
-    return _(points).map((point, i) => ({
+    return _(this.points).map((point, i) => ({
       ...point,
       dB: fft ? fft[i] : -Infinity,
     })).value()
@@ -64,12 +67,12 @@ export class HilbertGraph {
       .domain([ 0, this.size ])
       .range([ 0, this.canvasWidth ])
 
-    const freqScale = d3.scaleSequential(d3.interpolateRainbow)
+    const freqScale = d3.scaleSequential(d3ScaleChromatic.interpolateSpectral)
       .domain([ 0, this.length ])
 
-    const dBScale = d3.scaleLinear()
-      .domain([ -90, -20 ])
-      .range([ 0.5, 1 ])
+    const dBScale = d3.scaleLog()
+      .domain([ -90, -50 ])
+      .range([ 0.1, 1 ])
 
     const data = this.getData(fft)
 

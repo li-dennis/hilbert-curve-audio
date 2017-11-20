@@ -51,8 +51,10 @@ class App extends React.Component {
     this.source = this.audioContext.createMediaStreamSource(await this.getStream())
     this.source.connect(this.analyser)
 
-    this.analyser.fftSize = 2 << ORDER
-    this.analyser.smoothingTimeConstant = 0.5
+    // FFTSize is 2x because of nyquist cutoff. We also choose to only look at
+    // the bottom half of that because the top half is pretty boring.
+    this.analyser.fftSize = 4 << ORDER
+    this.analyser.smoothingTimeConstant = 0.7
 
     this.oscillator = this.audioContext.createOscillator()
     this.oscillator.connect(this.audioContext.destination)
@@ -61,7 +63,7 @@ class App extends React.Component {
       const buffer = new Float32Array(this.analyser.frequencyBinCount)
       this.analyser.getFloatFrequencyData(buffer)
       this.hilbertGraph.update(buffer)
-    }, 10)
+    }, 5)
   }
 
   private drawHilbert = () => {
