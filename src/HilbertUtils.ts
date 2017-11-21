@@ -29,7 +29,10 @@ export class HilbertGraph {
       .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`)
 
+    const pixelSize = this.canvasWidth / this.size
     this.graphGroup = this.svg.append('g')
+      .attr('transform', `translate(${ - pixelSize / 2}, ${ - pixelSize / 2})`)
+
     this.lineGroup = this.svg.append('g')
 
     this.points = getHilbertPath(0, this.length, this.size)
@@ -61,26 +64,33 @@ export class HilbertGraph {
       .domain([ -30, -100 ])
 
     const graph = this.graphGroup.selectAll('rect')
-      .data(this.points)
+      .data(this.points, (d, i, nodes) => d ? (d as Point).id : (nodes[i] as any).id)
 
     const pixelSize = this.canvasWidth / this.size
 
     graph.enter().append('rect')
       .attr('x', (d) => scale(d.x))
       .attr('y', (d) => scale(d.y))
-      .attr('transform', `translate(${ - pixelSize / 2}, ${ - pixelSize / 2})`)
       .attr('height', pixelSize)
       .attr('width', pixelSize)
-      // .on('mouseover', (d, i, nodes) => {
-      //   d3.select(nodes[i])
-      //     .attr('fill', () => 'black')
-      // })
-      // .on('mouseout', (d, i, nodes) => {
-      //   d3.select(nodes[i])
-      //     .attr('fill', () => dBScale(d.dB))
-      // })
+      .attr('stroke', null)
+      .on('mouseover', (d, i, nodes) => {
+        d3.select(nodes[i])
+          .attr('width', pixelSize * 2)
+          .attr('height', pixelSize * 2)
+          .attr('stroke', 'black')
+          .attr('transform', `translate(${ - pixelSize * 0.5 }, ${ - pixelSize * 0.5})`)
+          .raise()
+      })
+      .on('mouseout', (d, i, nodes) => {
+        d3.select(nodes[i])
+          .attr('width', pixelSize)
+          .attr('height', pixelSize)
+          .attr('transform', null)
+          .attr('stroke', null)
+      })
       .merge(graph)
-        .attr('fill', (d, i) => dBScale(fft[i]) )
+        .attr('fill', (d, i) => dBScale(fft[d.id]) )
 
     graph.exit().remove()
   }

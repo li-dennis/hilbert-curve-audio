@@ -7,7 +7,6 @@ import './App.css'
 // TODO: Add color scale for dB.
 // TODO: Add interactive normal 1D spectrum
 // TODO: Add transitions to convert between 1D and 2D.
-
 const ORDER = 12
 
 class App extends React.Component {
