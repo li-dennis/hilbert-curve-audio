@@ -7,11 +7,13 @@ import './App.css'
 // TODO: Add color scale for dB.
 // TODO: Add interactive normal 1D spectrum
 // TODO: Add transitions to convert between 1D and 2D.
-const ORDER = 12
+const ORDER = 10
 
 class App extends React.Component {
 
-  private svg: SVGSVGElement
+  private hilbertSvg: SVGSVGElement
+  private barGraphSvg: SVGSVGElement
+
   private hilbertGraph: HilbertUtils.HilbertGraph
   private audioContext: AudioContext
   private analyser: AnalyserNode
@@ -36,8 +38,8 @@ class App extends React.Component {
   public render() {
     return (
       <div className="App">
-        <svg id="hilbert-chart" ref={(svg) => this.svg = svg as SVGSVGElement} />
-        <div id="val-tooltip" />
+        <svg id="hilbert-chart" ref={(svg) => this.hilbertSvg = svg as SVGSVGElement} />
+        <svg id="bar-graph" ref={(svg) => this.barGraphSvg = svg as SVGSVGElement} />
       </div>
     )
   }
@@ -57,8 +59,8 @@ class App extends React.Component {
 
     // FFTSize is 2x because of nyquist cutoff. Furthermore, for most music, the
     // top half of sampled frequencies is pretty boring. so double a few more times!
-    this.analyser.fftSize = 1 << (ORDER + 3)
-    this.analyser.smoothingTimeConstant = 0.5
+    this.analyser.fftSize = 1 << (ORDER + 2)
+    this.analyser.smoothingTimeConstant = 0.4
 
     this.oscillator = this.audioContext.createOscillator()
     this.oscillator.connect(this.audioContext.destination)
@@ -72,10 +74,11 @@ class App extends React.Component {
   }
 
   private drawHilbert = () => {
-    const canvasWidth = Math.min(window.innerWidth, window.innerHeight) - 20
+    const canvasWidth = Math.min(window.innerWidth / 2, window.innerHeight) - 20
 
     this.hilbertGraph = new HilbertUtils.HilbertGraph(
-      this.svg,
+      this.hilbertSvg,
+      this.barGraphSvg,
       canvasWidth,
       ORDER,
       (frequency: number) => {
