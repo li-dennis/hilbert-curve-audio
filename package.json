@@ -8,17 +8,21 @@
     "d3-hilbert": "^0.2.10",
     "d3-scale-chromatic": "^1.1.1",
     "d3-tip": "^0.7.1",
+    "gh-pages": "^1.1.0",
     "lodash": "^4.17.4",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-scripts-ts": "2.8.0"
   },
   "scripts": {
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
   },
+  "homepage": "https://dennisli92.github.io/hilbert-curve-audio",
   "devDependencies": {
     "@types/d3": "^4.11.0",
     "@types/d3-tip": "^3.5.5",

@@ -37,7 +37,6 @@ export class HilbertGraph {
       .attr('width', canvasWidth + margin.left + margin.right)
       .attr('height', canvasWidth + margin.top + margin.bottom)
       .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`)
 
     const pixelSize = this.canvasWidth / this.size
     this.graphGroup = this.hilbertSvg.append('g')
@@ -90,12 +89,8 @@ export class HilbertGraph {
       .attr('stroke', null)
       .on('mouseover', (d, i, nodes) => {
         d3.select(nodes[i])
-          // .attr('width', pixelSize * 2)
-          // .attr('height', pixelSize * 2)
           .attr('stroke', 'black')
           .attr('stroke-width', '2px')
-          // .attr('transform', `translate(${ - pixelSize * 0.5 }, ${ - pixelSize * 0.5})`)
-          // .raise()
 
         this.activePoint = d
       })
@@ -103,10 +98,6 @@ export class HilbertGraph {
         d3.select(nodes[i])
           .attr('stroke', null)
           .attr('stroke-width', null)
-          // .attr('width', pixelSize)
-          // .attr('height', pixelSize)
-          // .attr('transform', null)
-          // .attr('stroke', null)
 
         this.activePoint = null
       })
