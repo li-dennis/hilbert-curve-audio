@@ -23,21 +23,26 @@ class App extends React.Component {
 
   constructor() {
     super()
-    this.audioContext = new (window as any).AudioContext()
-    this.analyser = this.audioContext.createAnalyser()
-  }
-
-  public componentDidMount() {
-    this.setup()
   }
 
   public componentWillUpdate() {
     return false
   }
 
+  // https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio:w
+  public enableAudioContext() {
+    if (this.audioContext) {
+      return
+    }
+    this.audioContext = new (window as any).AudioContext()
+    this.analyser = this.audioContext.createAnalyser()
+    this.setup()
+  }
+
+  // TODO: Add basic button to click through first
   public render() {
     return (
-      <div className="App">
+      <div className="App" onClick={() => this.enableAudioContext()}>
         <svg id="hilbert-chart" ref={(svg) => this.hilbertSvg = svg as SVGSVGElement} />
         <svg id="bar-graph" ref={(svg) => this.barGraphSvg = svg as SVGSVGElement} />
       </div>
