@@ -29,20 +29,14 @@ class App extends React.Component {
     return false
   }
 
-  // https://developers.google.com/web/updates/2017/09/autoplay-policy-changes#webaudio:w
-  public enableAudioContext() {
-    if (this.audioContext) {
-      return
-    }
-    this.audioContext = new (window as any).AudioContext()
-    this.analyser = this.audioContext.createAnalyser()
+  public componentDidMount() {
     this.setup()
   }
 
   // TODO: Add basic button to click through first
   public render() {
     return (
-      <div className="App" onClick={() => this.enableAudioContext()}>
+      <div className="App">
         <svg id="hilbert-chart" ref={(svg) => this.hilbertSvg = svg as SVGSVGElement} />
         <svg id="bar-graph" ref={(svg) => this.barGraphSvg = svg as SVGSVGElement} />
       </div>
@@ -59,12 +53,17 @@ class App extends React.Component {
   }
 
   private async setupWebAudio() {
+    this.audioContext = new (window as any).AudioContext()
+    this.analyser = this.audioContext.createAnalyser()
+
     this.source = this.audioContext.createMediaStreamSource(await this.getStream())
     this.source.connect(this.analyser)
 
     // FFTSize is 2x because of nyquist cutoff. Furthermore, for most music, the
     // top half of sampled frequencies is pretty boring. so double a few more times!
-    this.analyser.fftSize = 1 << (ORDER + 2)
+    // A better method might be to downsample from the usual soundcloud default of 44.1 kHz
+    // But there is limited browser support
+    this.analyser.fftSize = 1 << (ORDER + 3)
     this.analyser.smoothingTimeConstant = 0.4
 
     this.oscillator = this.audioContext.createOscillator()
