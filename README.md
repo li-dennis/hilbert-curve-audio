@@ -1,6 +1,6 @@
 # hilbert-curve-audio
 
-See a live demo at https://dennisli92.github.io/hilbert-curve-audio/
+See a live demo at https://li-dennis.github.io/hilbert-curve-audio/
 
 NOTE (Feb 2, 2019): because of changes to chrome's autoplay policy and limited chrome WebAudio support, this only works in firefox.
 
